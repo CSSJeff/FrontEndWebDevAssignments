@@ -48,13 +48,13 @@ let score = Number(prompt("Enter your score 0 to 100 (0 - 100):"));
 
 if (score >= 90 && score <= 100) {
     alert("Grade: A");
-} else if (score >= 80) {
+} else if (score >= 80 && score <= 89) {
     alert("Grade: B");
-} else if (score >= 70) {
+} else if (score >= 70 && score <= 79) {
     alert("Grade: C");
-} else if (score >= 60) {
+} else if (score >= 60 && score <= 69) {
     alert("Grade: D");
-} else if (score >= 0) {
+} else if (score >= 0 && score < 60) {
     alert("Grade: F");
 } else {
     alert("Invalid score entered.");
