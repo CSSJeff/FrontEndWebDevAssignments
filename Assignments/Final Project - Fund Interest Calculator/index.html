@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Estimate simple or compound fund growth, compare funds, and save calculations.">
+  <title>Fund Interest Calculator</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#home" data-view="home" aria-label="Fund Interest Calculator home">
+      <span class="brand-mark">FI</span>
+      <span>Fund Interest Calculator</span>
+    </a>
+    <button class="menu-button" id="menuButton" aria-expanded="false" aria-controls="mainNav">Menu</button>
+    <nav id="mainNav" class="main-nav" aria-label="Primary navigation">
+      <button class="nav-link active" data-view="home">Home</button>
+      <button class="nav-link" data-view="funds">Choose Fund</button>
+      <button class="nav-link" data-view="calculator">Calculator</button>
+      <button class="nav-link" data-view="compare">Compare</button>
+      <button class="nav-link" data-view="request">Request Fund</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="view active-view hero" aria-labelledby="homeTitle">
+      <div class="hero-copy">
+        <p class="eyebrow">Educational investment planning tool</p>
+        <h1 id="homeTitle">Explore how deposits, time, and estimated returns can affect future value.</h1>
+        <p>Choose a sample fund, run a simple or compound-interest estimate, compare up to four funds using the same assumptions, and save calculation history in your browser.</p>
+        <div class="button-row">
+          <button class="button primary" data-view="funds">Choose a fund</button>
+          <button class="button secondary" data-view="calculator">Start a calculation</button>
+        </div>
+        <p class="disclaimer"><strong>Educational use only.</strong> Rates and growth values are estimates or user-entered assumptions, not guarantees or financial advice.</p>
+      </div>
+      <div class="hero-card" aria-label="Application highlights">
+        <div class="stat"><strong id="fundCount">0</strong><span>sample funds</span></div>
+        <div class="stat"><strong id="savedCount">0</strong><span>saved calculations</span></div>
+        <div class="stat"><strong id="compareCount">0</strong><span>funds selected</span></div>
+      </div>
+    </section>
+
+    <section id="funds" class="view" aria-labelledby="fundsTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Fund library</p>
+          <h2 id="fundsTitle">Choose a fund</h2>
+          <p>Search, filter, and sort the sample data. Select a fund to load its estimated rate into the calculator or add it to the comparison list.</p>
+        </div>
+      </div>
+
+      <div class="toolbar card">
+        <label>Search funds
+          <input id="fundSearch" type="search" placeholder="Name, ticker, or provider">
+        </label>
+        <label>Interest type
+          <select id="typeFilter">
+            <option value="all">All types</option>
+            <option value="compound">Compound</option>
+            <option value="simple">Simple</option>
+          </select>
+        </label>
+        <label>Sort by
+          <select id="sortFunds">
+            <option value="name">Fund name</option>
+            <option value="rate-desc">Estimated rate: high to low</option>
+            <option value="rate-asc">Estimated rate: low to high</option>
+            <option value="growth-desc">Anticipated growth: high to low</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="table-wrap card">
+        <table>
+          <thead>
+            <tr>
+              <th>Fund</th>
+              <th>Provider</th>
+              <th>Interest type</th>
+              <th>Estimated rate</th>
+              <th>Anticipated growth</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="fundTableBody"></tbody>
+        </table>
+        <p id="noFundsMessage" class="empty-state hidden">No matching fund was found. Enter assumptions manually in the calculator or request that a fund be added.</p>
+      </div>
+    </section>
+
+    <section id="calculator" class="view" aria-labelledby="calculatorTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Interactive calculator</p>
+          <h2 id="calculatorTitle">Interest calculator</h2>
+          <p>Results update as you type. Recurring deposits can be monthly or yearly, and compound interest can be applied monthly, quarterly, or annually.</p>
+        </div>
+      </div>
+
+      <div class="calculator-layout">
+        <form id="calculatorForm" class="card form-card" novalidate>
+          <div class="form-grid">
+            <label class="wide">Fund or calculation name
+              <input id="calcName" type="text" maxlength="50" placeholder="Example: Retirement estimate">
+            </label>
+            <label>Initial deposit ($)
+              <input id="principal" type="number" min="0" step="0.01" value="1000" required>
+            </label>
+            <label>Estimated annual rate (%)
+              <input id="rate" type="number" min="0" max="100" step="0.01" value="7" required>
+            </label>
+            <label>Time period (years)
+              <input id="years" type="number" min="1" max="100" step="1" value="10" required>
+            </label>
+            <label>Interest type
+              <select id="interestType">
+                <option value="compound">Compound</option>
+                <option value="simple">Simple</option>
+              </select>
+            </label>
+            <label>Recurring deposit ($)
+              <input id="recurringDeposit" type="number" min="0" step="0.01" value="100">
+            </label>
+            <label>Deposit schedule
+              <select id="depositFrequency">
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </label>
+            <label id="compoundFrequencyLabel">Compounding schedule
+              <select id="compoundFrequency">
+                <option value="12">Monthly</option>
+                <option value="4">Quarterly</option>
+                <option value="1">Annually</option>
+              </select>
+            </label>
+          </div>
+          <div id="calculatorErrors" class="message error hidden" role="alert"></div>
+          <div class="button-row">
+            <button type="button" id="saveCalculation" class="button primary">Save calculation</button>
+            <button type="reset" class="button secondary">Reset</button>
+          </div>
+        </form>
+
+        <aside class="card result-card" aria-live="polite">
+          <p class="result-label">Estimated future value</p>
+          <p id="futureValue" class="result-value">$0.00</p>
+          <div class="result-breakdown">
+            <div><span>Total contributions</span><strong id="totalContributions">$0.00</strong></div>
+            <div><span>Estimated earnings</span><strong id="estimatedEarnings">$0.00</strong></div>
+          </div>
+          <div class="mini-chart" aria-hidden="true">
+            <div id="contributionBar" class="bar contributions"></div>
+            <div id="earningsBar" class="bar earnings"></div>
+          </div>
+          <button class="button secondary full" data-view="compare">Compare to selected funds</button>
+        </aside>
+      </div>
+
+      <section class="history-section" aria-labelledby="historyTitle">
+        <div class="section-heading compact">
+          <div><h3 id="historyTitle">Calculation history</h3><p>Saved locally on this device.</p></div>
+          <button id="clearHistory" class="text-button">Clear all</button>
+        </div>
+        <div id="historyList" class="history-grid"></div>
+      </section>
+    </section>
+
+    <section id="compare" class="view" aria-labelledby="compareTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Side-by-side estimates</p>
+          <h2 id="compareTitle">Compare funds</h2>
+          <p>All selected funds use the same starting deposit, recurring contribution, deposit schedule, and time period from the calculator.</p>
+        </div>
+      </div>
+
+      <div id="comparisonSummary" class="message info">Select up to four funds from the fund library to begin.</div>
+      <div id="comparisonList" class="comparison-grid"></div>
+      <div class="button-row">
+        <button class="button secondary" data-view="funds">Add or change funds</button>
+        <button id="clearComparison" class="button danger">Clear comparison</button>
+      </div>
+    </section>
+
+    <section id="request" class="view" aria-labelledby="requestTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Fund request</p>
+          <h2 id="requestTitle">Request a fund to be added</h2>
+          <p>This classroom version stores requests only in your browser using localStorage. It does not send them to an administrator or external service.</p>
+        </div>
+      </div>
+
+      <form id="requestForm" class="card request-form" novalidate>
+        <label>Fund name or ticker symbol
+          <input id="requestFundName" type="text" maxlength="60" required placeholder="Example: VTI">
+        </label>
+        <label>Why would it be a useful addition?
+          <textarea id="requestReason" maxlength="500" required placeholder="Explain why this fund should be included..."></textarea>
+          <span class="character-count"><span id="reasonCount">0</span>/500</span>
+        </label>
+        <label>Email (optional)
+          <input id="requestEmail" type="email" placeholder="name@example.com">
+        </label>
+        <div id="requestMessage" class="message hidden" role="status"></div>
+        <button class="button primary" type="submit">Save request locally</button>
+      </form>
+      <div class="card saved-requests">
+        <div class="section-heading compact">
+          <div><h3>Saved requests</h3><p>Requests stored on this device.</p></div>
+          <button id="clearRequests" class="text-button">Clear all</button>
+        </div>
+        <div id="requestList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Fund Interest Calculator · Educational estimates only · No guaranteed returns</p>
+  </footer>
+</body>
+</html>
